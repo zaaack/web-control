@@ -1,6 +1,6 @@
 {
   "name": "web-control",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "main": "src/index.ts",
   "repository": "git@github.com:zaaack/web-control.git",
   "author": "zaaack <zaaack@qq.com>",

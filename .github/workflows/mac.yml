@@ -1,0 +1,39 @@
+name: Build exe for macOS releases
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - 12
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          architecture: ${{ matrix.architecture }}
+
+      - name: Install packages
+        run: yarn
+
+      - name: build
+        run: yarn build
+
+
+      - uses: actions/upload-artifact@v2
+        if: github.repository_owner == 'zaaack' && github.event_name != 'pull_request'
+        with:
+          name: web-control-macos
+          path: |
+            build/**/*

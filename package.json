@@ -12,7 +12,9 @@
     "assets": "dist/**/*"
   },
   "scripts": {
-    "build": "foy build"
+    "start": "ts-node src",
+    "build": "foy build",
+    "release": "npm version patch && gpsom --tags"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

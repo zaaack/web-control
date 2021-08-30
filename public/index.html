@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.js">
+  </script>
+  <title>网页触控板</title>
+  <style type="text/css">
+    * {
+      margin: 0px;
+      padding: 0px
+    }
+
+    body,html {
+      overflow: hidden;
+    }
+    #can {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="can"></canvas>
+  <script type="text/javascript">
+    let sens = 4 // 滑动灵敏度
+    let scrs = 2 // 滚动灵敏度
+
+    let can = document.getElementById("can")
+    let cvs = can.getContext("2d")
+    can.width = window.innerWidth
+    can.height = window.innerHeight
+    let host = window.location.host
+
+    let mx = 0
+    let my = 0
+    let sx = 0
+    let sy = 0
+    let x = 0
+    let y = 0
+    let flag = false
+    let touchLength = 0
+    let touchScroll = false
+
+    can.addEventListener("touchstart", function (e) {
+      touchLength = e.touches.length
+      x = sx = e.touches[0].clientX
+      y = sy = e.touches[0].clientY
+      axios.get(`http://${host}/mouse/get/`)
+        .then(res => {
+          mx = parseInt(res.data.x)
+          my = parseInt(res.data.y)
+          flag = true
+        })
+    }, {
+      passive: false
+    })
+
+    can.addEventListener("touchmove", function (e) {
+      e.preventDefault()
+      if (e.touches.length == 2) {
+        touchScroll = true
+        let tmpsx = (e.touches[0].clientX - sx) * scrs
+        let tmpsy = (e.touches[0].clientY - sy) * scrs
+        axios.post(`http://${host}/mouse/scroll/`, {
+          x: tmpsx,
+          y: tmpsy,
+        })
+        sx = e.touches[0].clientX
+        sy = e.touches[0].clientY
+      } else {
+        if (!flag) return
+        let tmpx = mx + (e.touches[0].clientX - x) * sens
+        let tmpy = my + (e.touches[0].clientY - y) * sens
+        axios.post(`http://${host}/mouse/move/`, {
+          x: tmpx,
+          y: tmpy,
+        })
+
+      }
+    }, {
+      passive: false
+    })
+
+    can.addEventListener("touchend", function (e) {
+      if (touchLength == 2 && !touchScroll) {
+        axios.post(`http://${host}/mouse/click/`, {
+          button: 'right'
+        })
+      }
+      touchLength = 0
+      touchScroll = false
+      flag = false
+    }, {
+      passive: false
+    })
+
+    can.addEventListener("click", function (e) {
+      axios.post(`http://${host}/mouse/click/`, {
+        button: 'left'
+      })
+    }, {
+      passive: false
+    })
+
+  </script>
+</body>
+</html>

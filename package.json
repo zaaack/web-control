@@ -14,7 +14,7 @@
   "scripts": {
     "start": "ts-node src",
     "build": "foy build",
-    "release": "npm version patch && gpsom --tags"
+    "release": "npm version patch && git push origin master --tags"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
